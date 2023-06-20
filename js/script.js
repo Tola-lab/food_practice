@@ -40,11 +40,24 @@ window.addEventListener('DOMContentLoaded', () => {
     const deadline = '2023-06-30';  // дата дедлайна
 
     function getTimeRemaning(endtime) { // получаем разницу между датами: дедлйан и сегодняшний день
-        const t = Date.parse(endtime) - Date.parse(new Date()), // в переменную t получаем разницу между дедлайном и сегодняшней датой
-              days = Math.floor(t / (1000 * 60 * 60 * 24)),  // 1000 мс * на минуту * на час * на сутки = сколько суток до дедлайна. Math.floor() – округление до целого
-              hours = Math.floor((t / (1000 * 60 * 60) % 24)),  // 1000 мс * на минуту * на час = сколько часов до дедлайна. % 24 – это деление часов до дедлайн на 24 и возвращения остатка
-              minutes = Math.floor((t / (1000 * 60) % 60)),
-              seconds = Math.floor((t / 1000) % 60);
+        const t = Date.parse(endtime) - Date.parse(new Date()); // в переменную t получаем разницу между дедлайном и сегодняшней датой
+        let days,
+            hours,
+            minutes,
+            seconds;
+
+            if (t <= 0) {
+                days = 0;
+                hours = 0,
+                minutes = 0,
+                seconds = 0;
+            } else {
+                days = Math.floor(t / (1000 * 60 * 60 * 24)),  // 1000 мс * на минуту * на час * на сутки = сколько суток до дедлайна. Math.floor() – округление до целого
+                hours = Math.floor((t / (1000 * 60 * 60) % 24)),  // 1000 мс * на минуту * на час = сколько часов до дедлайна. % 24 – это деление часов до дедлайн на 24 и возвращения остатка
+                minutes = Math.floor((t / (1000 * 60) % 60)),
+                seconds = Math.floor((t / 1000) % 60);
+            };
+
 
         return {
             'total': t,    // общее кол-во миллисекунд
@@ -88,4 +101,34 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     setClock('.timer', deadline);
+
+// Modal
+
+    const modalOpen = document.querySelectorAll('[data-modal]'),
+          modal = document.querySelector('.modal'),
+          modalClose = document.querySelector('[data-close]');
+   
+    
+        modalOpen.forEach(item => {
+            item.addEventListener('click', () => {
+                modal.style.display = 'block';
+                document.body.style.overflow = 'hidden';  // чтобы не было прокрутки у модального окна
+            });
+        });
+
+        modalClose.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        modal.addEventListener('click', (e) => {     // закрываем модальное окно, нажав на область вокруг него
+            if(e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {     // закрываем модальное окно нажатием на кнопку клавиатуры
+            if (e.code === 'Escape') {
+                modal.style.display = 'none';
+            }
+        })
 });
