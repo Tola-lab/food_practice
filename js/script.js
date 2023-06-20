@@ -86,8 +86,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
         updateClock(); // запуск функции в ручную решит проблему с задеркой на секунду в обновлении страницы
 
-        function updateClock () {   // меняет по секундно таймер
-            const t = getTimeRemaning(endtime);
+    function updateClock () {   // меняет по секундно таймер
+        const t = getTimeRemaning(endtime);
 
             days.innerHTML = getZero(t.days);
             hours.innerHTML = getZero(t.hours);
@@ -107,28 +107,42 @@ window.addEventListener('DOMContentLoaded', () => {
     const modalOpen = document.querySelectorAll('[data-modal]'),
           modal = document.querySelector('.modal'),
           modalClose = document.querySelector('[data-close]');
-   
+
+    function openModal () {
+        modal.style.display = 'block';
+        // document.body.style.overflow = 'hidden'; // чтобы не было прокрутки у модального окна.
+        clearInterval(modalTimerId);
+    };
     
-        modalOpen.forEach(item => {
-            item.addEventListener('click', () => {
-                modal.style.display = 'block';
-                document.body.style.overflow = 'hidden';  // чтобы не было прокрутки у модального окна
-            });
-        });
+    modalOpen.forEach(item => {
+        item.addEventListener('click', openModal);
+    });
 
-        modalClose.addEventListener('click', () => {
+    modalClose.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+
+    modal.addEventListener('click', (e) => {     // закрываем модальное окно, нажав на область вокруг него
+        if(e.target === modal) {
             modal.style.display = 'none';
-        });
+        }
+    });
 
-        modal.addEventListener('click', (e) => {     // закрываем модальное окно, нажав на область вокруг него
-            if(e.target === modal) {
-                modal.style.display = 'none';
-            }
-        });
+    document.addEventListener('keydown', (e) => {     // закрываем модальное окно нажатием на кнопку клавиатуры
+        if (e.code === 'Escape') {
+            modal.style.display = 'none';
+        }
+    });
 
-        document.addEventListener('keydown', (e) => {     // закрываем модальное окно нажатием на кнопку клавиатуры
-            if (e.code === 'Escape') {
-                modal.style.display = 'none';
-            }
-        })
+
+    const modalTimerId = setTimeout(openModal, 10000);  // вызываем модальное окно через какое-то время
+
+    function showModalByScroll () {  // вызываем модальное окно, когда доскроллили в самый низ
+        if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+            openModal();
+            window.removeEventListener('scroll', showModalByScroll); // удали эту функцию, когда показал один раз
+        } 
+    };
+
+    window.addEventListener('scroll', showModalByScroll);
 });
