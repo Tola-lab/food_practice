@@ -1,3 +1,5 @@
+// * использую style вместо classlist, так как не прописывала новые классы для ccs
+
 window.addEventListener('DOMContentLoaded', () => {
 // Tabs
 
@@ -105,38 +107,39 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // Modal
 
-    const modalOpen = document.querySelectorAll('[data-modal]'),
-          modal = document.querySelector('.modal'),
-          modalClose = document.querySelector('[data-close]');
+    const modalTrigger = document.querySelectorAll('[data-modal]'),
+          modal = document.querySelector('.modal');
 
-    function openModal () {
-        modal.style.display = 'block';
-        // document.body.style.overflow = 'hidden'; // чтобы не было прокрутки у модального окна.
-        clearInterval(modalTimerId);
-    };
-    
-    modalOpen.forEach(item => {
+    modalTrigger.forEach(item => {
         item.addEventListener('click', openModal);
     });
 
-    modalClose.addEventListener('click', () => {
-        modal.style.display = 'none';
-    });
+    function openModal () {
+        modal.style.display = 'block';
+        document.body.style.overflow = 'hidden'; // чтобы не было прокрутки у модального окна.
+        clearInterval(modalTimerId);
+    };
 
-    modal.addEventListener('click', (e) => {     // закрываем модальное окно, нажав на область вокруг него
-        if(e.target === modal) {
-            modal.style.display = 'none';
+    function closeModal() {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+    
+
+    modal.addEventListener('click', (e) => {     // закрываем модальное окно
+        if(e.target === modal || e.target.getAttribute('data-close') == '') {
+            closeModal()
         }
     });
 
     document.addEventListener('keydown', (e) => {     // закрываем модальное окно нажатием на кнопку клавиатуры
         if (e.code === 'Escape') {
-            modal.style.display = 'none';
+            closeModal()
         }
     });
 
 
-    const modalTimerId = setTimeout(openModal, 10000);  // вызываем модальное окно через какое-то время
+    const modalTimerId = setTimeout(openModal, 50000);  // вызываем модальное окно через какое-то время
 
     function showModalByScroll () {  // вызываем модальное окно, когда доскроллили в самый низ
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
@@ -223,7 +226,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const forms = document.querySelectorAll('form');
 
     const message = {
-        loading: 'Загрузка', 
+        loading: 'img/form/spinner.svg', 
         success: 'Спасибо! Скоро мы с вами свяжемся!', 
         failure: 'Что-то пошло не так...'
     };
@@ -236,9 +239,13 @@ window.addEventListener('DOMContentLoaded', () => {
         form.addEventListener('submit', (e) => {     // событие по отправке формы в обычном формате
             e.preventDefault();
 
-            let statusMessage = document.createElement('div');
-            statusMessage.textContent = message.loading;
-            form.appendChild(statusMessage);     // добавляем к форме сообщение
+            let statusMessage = document.createElement('img');  
+            statusMessage.src = message.loading;    // подгружается картинка
+            statusMessage.style.cssText = `
+                display: block;
+                margin: 0 auto;
+            `;
+            form.insertAdjacentElement('afterend', statusMessage);     // добавляем к форме сообщение
 
             const request = new XMLHttpRequest();
             request.open('POST', 'server.php');
@@ -257,15 +264,36 @@ window.addEventListener('DOMContentLoaded', () => {
             request.addEventListener('load', () => {
                 if (request.status === 200) {
                     console.log(request.response);
-                    statusMessage.textContent = message.success;
+                    showThanksModal(message.success);
                     form.reset();
-                    setTimeout(() => {
-                        statusMessage.remove();
-                    }, 2000);
+                    statusMessage.remove();
                 } else {
-                    statusMessage.textContent = message.failure;
+                    showThanksModal(message.failure);
                 }
             });
         });
+    }
+
+    function showThanksModal (message) {       // создаём модальное окно с благодарностью после отправки данные в форме
+        const prevModalDialog = document.querySelector('.modal__dialog');
+
+        prevModalDialog.style.display = 'none';
+        openModal();
+
+        const thanksModal = document.createElement('div');
+        thanksModal.classList.add('modal__dialog');
+        thanksModal.innerHTML = `
+        <div class="modal__content">
+        <div data-close class="modal__close">&times;</div>
+        <div class="modal__title">${message}</div>
+        </div>
+        `;
+        document.querySelector('.modal').append(thanksModal);
+
+        setTimeout (() => {
+            thanksModal.remove();
+            prevModalDialog.style.display = 'block';
+            closeModal();
+        }, 4000);
     }
 });
