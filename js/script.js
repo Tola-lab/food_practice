@@ -316,4 +316,56 @@ window.addEventListener('DOMContentLoaded', () => {
     fetch('http://localhost:3000/menu')     // работа с базой данных db.json 
     .then(data => data.json())
     .then(res => console.log(res));
+
+// Создаём простой слайдер
+    const slides = document.querySelectorAll('.offer__slide'),
+          prev = document.querySelector('.offer__slider-prev'),
+          next = document.querySelector('.offer__slider-next'), 
+          current = document.querySelector('#current'),
+          total = document.querySelector('#total');
+
+
+    let slideIndex = 1;     // индекс (номер) слайда
+
+    showSlides(slideIndex);     // как изначально будет выглядеть слайдер
+
+    if (slides.length < 10) {
+        total.textContent = `0${slides.length}`;
+    } else {
+        total.textContent = slides.length;
+    }
+
+    function showSlides (n) {   // n – slideIndex
+        if (n > slides.length) {      // slides.length – это сколько всего у нас слайдов
+            slideIndex = 1;
+        }
+
+        if (n < 1) {
+            slideIndex = slides.length; 
+        }
+
+        slides.forEach(slide => {
+            slide.style.display = 'none';
+        })
+
+        slides[slideIndex -1].style.display = 'block';
+
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+    };
+
+    function plusSlides (n) {       // переключение слайдов 
+        showSlides(slideIndex += n);
+    }
+
+    prev.addEventListener('click', () => {      // клик на стрелку назад
+        plusSlides(-1);
+    });
+
+    next.addEventListener('click', () => {      // клик на стрелку вперед
+        plusSlides(1);
+    });
 });
