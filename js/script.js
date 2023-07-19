@@ -318,54 +318,130 @@ window.addEventListener('DOMContentLoaded', () => {
     .then(res => console.log(res));
 
 // Создаём простой слайдер
-    const slides = document.querySelectorAll('.offer__slide'),
-          prev = document.querySelector('.offer__slider-prev'),
-          next = document.querySelector('.offer__slider-next'), 
-          current = document.querySelector('#current'),
-          total = document.querySelector('#total');
+    // const slides = document.querySelectorAll('.offer__slide'),
+    //       prev = document.querySelector('.offer__slider-prev'),
+    //       next = document.querySelector('.offer__slider-next'), 
+    //       current = document.querySelector('#current'),
+    //       total = document.querySelector('#total');
 
+
+    // let slideIndex = 1;     // индекс (номер) слайда
+
+    // showSlides(slideIndex);     // как изначально будет выглядеть слайдер
+
+    // if (slides.length < 10) {        // кол-во всех слайдов
+    //     total.textContent = `0${slides.length}`;
+    // } else {
+    //     total.textContent = slides.length;
+    // }
+
+    // function showSlides (n) {   // n – slideIndex
+    //     if (n > slides.length) {      // slides.length – это сколько всего у нас слайдов
+    //         slideIndex = 1;
+    //     }
+
+    //     if (n < 1) {
+    //         slideIndex = slides.length; 
+    //     }
+
+    //     slides.forEach(slide => {
+    //         slide.style.display = 'none';
+    //     })
+
+    //     slides[slideIndex -1].style.display = 'block';
+
+    //     if (slides.length < 10) {        // изменение номера текущего слайда
+    //         current.textContent = `0${slideIndex}`;
+    //     } else {
+    //         current.textContent = slideIndex;
+    //     }
+    // };
+
+    // function plusSlides (n) {       // переключение слайдов 
+    //     showSlides(slideIndex += n);
+    // }
+
+    // prev.addEventListener('click', () => {      // клик на стрелку назад
+    //     plusSlides(-1);
+    // });
+
+    // next.addEventListener('click', () => {      // клик на стрелку вперед
+    //     plusSlides(1);
+    // });
+
+// Создаём более сложный слайдер 
+
+    const slides = document.querySelectorAll('.offer__slide'),
+            prev = document.querySelector('.offer__slider-prev'),
+            next = document.querySelector('.offer__slider-next'), 
+            current = document.querySelector('#current'),
+            total = document.querySelector('#total'), 
+            slidesWrapper = document.querySelector('.offer__slider-wrapper'), 
+            slidesField = document.querySelector('.offer__slider-inner'), 
+            width = window.getComputedStyle(slidesWrapper).width;   // ширина окна слайда 
 
     let slideIndex = 1;     // индекс (номер) слайда
+    let offset = 0;         // сколько нужно отступить при смещении слайда
 
-    showSlides(slideIndex);     // как изначально будет выглядеть слайдер
-
-    if (slides.length < 10) {
+    if (slides.length < 10) {        // кол-во всех слайдов
         total.textContent = `0${slides.length}`;
+        current.textContent = `0${slideIndex}`;
     } else {
         total.textContent = slides.length;
+        current.textContent = slideIndex;
     }
 
-    function showSlides (n) {   // n – slideIndex
-        if (n > slides.length) {      // slides.length – это сколько всего у нас слайдов
+    slidesField.style.width = 100 * slides.length + '%';        // ширина всех слайдов. они будут стоять в одной линии, но показываться будет только один
+    slidesField.style.display = 'flex';
+    slidesField.style.transition = '0.5s all';      // слайды перемещаются плавно 
+
+    slidesWrapper.style.overflow = 'hidden';    // скрыли все элементы, которые за шириной окна слайда
+
+    slides.forEach(slide => {       // ширина всех слайдов в линии
+        slide.style.width = width;
+    });
+
+    next.addEventListener('click', () => {
+        if (offset == +width.slice(0, width.length - 2) * (slides.length -1)) { // ширина слайда * на все слайды минус 1.  +width.slice(0, width.length - 2) – в width строка выглядит примерно так: "500px". методом slice мы вырезаем с 0, до width.length - 2 – а это количество символов у width минус 2. и в самом конце, унарным плюсом (+width), превращаем строку в число 
+            offset = 0;
+        } else {
+            offset += +width.slice(0, width.length - 2);     // к видимому слайду добаили ширину нового слайда, тем самым вытеснив видимый влево
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`;   //смещение линии со слайдами влево 
+
+        if (slideIndex == slides.length) {
             slideIndex = 1;
+        } else {
+            slideIndex++;
         }
-
-        if (n < 1) {
-            slideIndex = slides.length; 
-        }
-
-        slides.forEach(slide => {
-            slide.style.display = 'none';
-        })
-
-        slides[slideIndex -1].style.display = 'block';
 
         if (slides.length < 10) {
             current.textContent = `0${slideIndex}`;
         } else {
             current.textContent = slideIndex;
         }
-    };
-
-    function plusSlides (n) {       // переключение слайдов 
-        showSlides(slideIndex += n);
-    }
-
-    prev.addEventListener('click', () => {      // клик на стрелку назад
-        plusSlides(-1);
     });
 
-    next.addEventListener('click', () => {      // клик на стрелку вперед
-        plusSlides(1);
+    prev.addEventListener('click', () => {
+        if (offset == 0) { 
+            offset = +width.slice(0, width.length - 2) * (slides.length -1);
+        } else {
+            offset -= +width.slice(0, width.length - 2);   
+        }
+
+        slidesField.style.transform = `translateX(-${offset}px)`;
+
+        if (slideIndex == 1) {
+            slideIndex = slides.length;
+        } else {
+            slideIndex--;
+        }
+
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
     });
 });
