@@ -123,7 +123,7 @@ window.addEventListener('DOMContentLoaded', () => {
     function closeModal() {
         modal.style.display = 'none';
         document.body.style.overflow = '';
-    }
+    };
     
 
     modal.addEventListener('click', (e) => {     // закрываем модальное окно
@@ -372,13 +372,14 @@ window.addEventListener('DOMContentLoaded', () => {
 // Создаём более сложный слайдер 
 
     const slides = document.querySelectorAll('.offer__slide'),
-            prev = document.querySelector('.offer__slider-prev'),
-            next = document.querySelector('.offer__slider-next'), 
-            current = document.querySelector('#current'),
-            total = document.querySelector('#total'), 
-            slidesWrapper = document.querySelector('.offer__slider-wrapper'), 
-            slidesField = document.querySelector('.offer__slider-inner'), 
-            width = window.getComputedStyle(slidesWrapper).width;   // ширина окна слайда 
+          slider = document.querySelector('.offer__slider'),
+          prev = document.querySelector('.offer__slider-prev'),
+          next = document.querySelector('.offer__slider-next'), 
+          current = document.querySelector('#current'),
+          total = document.querySelector('#total'), 
+          slidesWrapper = document.querySelector('.offer__slider-wrapper'), 
+          slidesField = document.querySelector('.offer__slider-inner'), 
+          width = window.getComputedStyle(slidesWrapper).width;   // ширина окна слайда 
 
     let slideIndex = 1;     // индекс (номер) слайда
     let offset = 0;         // сколько нужно отступить при смещении слайда
@@ -401,6 +402,69 @@ window.addEventListener('DOMContentLoaded', () => {
         slide.style.width = width;
     });
 
+    slider.style.position = 'relative';     // для того, чтобы все элементы, которые будут абсолютно спозиционированны внутри слайдера, нормально отображались
+
+    const indicators = document.createElement('ol');      // обертка для точек для слайдера
+          dots = [];
+
+    indicators.style.cssText = `
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 15;
+        display: flex;
+        justify-content: center;
+        margin-right: 15%;
+        margin-left: 15%;
+        list-style: none;
+    `;
+    slider.append(indicators);
+
+    for (let i = 0; i < slides.length; i++) {       // создаём точки
+        const dot = document.createElement('li');
+        dot.setAttribute('data-slide-to', i + 1);         // устанавливаем атрибует 'data-slide-to' к каждой точке. 'i + 1' – нумерация точек (первый слайд == первая точка)
+        dot.style.cssText = `
+            box-sizing: content-box;
+            flex: 0 1 auto;
+            width: 30px;
+            height: 6px;
+            margin-right: 3px;
+            margin-left: 3px;
+            cursor: pointer;
+            background-color: #fff;
+            background-clip: padding-box;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
+            opacity: .5;
+            transition: opacity .6s ease;
+        `;
+        if (i == 0) {
+            dot.style.opacity = 1;
+        }
+        indicators.append(dot);
+        dots.push(dot);
+    };
+
+    function doActiveDot () {       // точка становится активной при перелистывании слайда
+        dots.forEach(item => {              
+            item.style.opacity = '.5';
+        });
+        dots[slideIndex - 1].style.opacity = '1';
+    };
+
+    function addZeroToNumber () {       // добавляем 0 к однозначным числам
+        if (slides.length < 10) {
+            current.textContent = `0${slideIndex}`;
+        } else {
+            current.textContent = slideIndex;
+        }
+    };
+
+    function shiftSlidesToLeft () {         //смещение линии со слайдами влево 
+        slidesField.style.transform = `translateX(-${offset}px)`;
+    };
+
     next.addEventListener('click', () => {
         if (offset == +width.slice(0, width.length - 2) * (slides.length -1)) { // ширина слайда * на все слайды минус 1.  +width.slice(0, width.length - 2) – в width строка выглядит примерно так: "500px". методом slice мы вырезаем с 0, до width.length - 2 – а это количество символов у width минус 2. и в самом конце, унарным плюсом (+width), превращаем строку в число 
             offset = 0;
@@ -408,7 +472,7 @@ window.addEventListener('DOMContentLoaded', () => {
             offset += +width.slice(0, width.length - 2);     // к видимому слайду добаили ширину нового слайда, тем самым вытеснив видимый влево
         }
 
-        slidesField.style.transform = `translateX(-${offset}px)`;   //смещение линии со слайдами влево 
+        shiftSlidesToLeft ();
 
         if (slideIndex == slides.length) {
             slideIndex = 1;
@@ -416,11 +480,8 @@ window.addEventListener('DOMContentLoaded', () => {
             slideIndex++;
         }
 
-        if (slides.length < 10) {
-            current.textContent = `0${slideIndex}`;
-        } else {
-            current.textContent = slideIndex;
-        }
+        addZeroToNumber ();
+        doActiveDot();
     });
 
     prev.addEventListener('click', () => {
@@ -430,7 +491,7 @@ window.addEventListener('DOMContentLoaded', () => {
             offset -= +width.slice(0, width.length - 2);   
         }
 
-        slidesField.style.transform = `translateX(-${offset}px)`;
+        shiftSlidesToLeft ();
 
         if (slideIndex == 1) {
             slideIndex = slides.length;
@@ -438,10 +499,20 @@ window.addEventListener('DOMContentLoaded', () => {
             slideIndex--;
         }
 
-        if (slides.length < 10) {
-            current.textContent = `0${slideIndex}`;
-        } else {
-            current.textContent = slideIndex;
-        }
+        addZeroToNumber ();
+        doActiveDot();
+    });
+
+    dots.forEach(item => {              // кликаем на любую точку -> открываем слайд подходящий к этой точке
+        item.addEventListener('click', (e) => {
+            const slideTo = e.target.getAttribute('data-slide-to');
+
+            slideIndex = slideTo;       // кликнули на 3ю точку, открылся 3й слайд
+            offset = +width.slice(0, width.length - 2) * (slideTo -1);
+
+            shiftSlidesToLeft ();
+            addZeroToNumber ();
+            doActiveDot();
+        });
     });
 });
