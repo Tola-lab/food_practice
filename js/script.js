@@ -465,11 +465,15 @@ window.addEventListener('DOMContentLoaded', () => {
         slidesField.style.transform = `translateX(-${offset}px)`;
     };
 
+    function removeNotNumber (str) {       // удаляем не числа + делаем из строки число
+        return +str.replace(/\D/g, '')
+    };
+
     next.addEventListener('click', () => {
-        if (offset == +width.slice(0, width.length - 2) * (slides.length -1)) { // ширина слайда * на все слайды минус 1.  +width.slice(0, width.length - 2) – в width строка выглядит примерно так: "500px". методом slice мы вырезаем с 0, до width.length - 2 – а это количество символов у width минус 2. и в самом конце, унарным плюсом (+width), превращаем строку в число 
+        if (offset == removeNotNumber(width) * (slides.length -1)) { // ширина слайда * на все слайды минус 1. width.replace(/\D/g, '') – все не числа убираем. унарным плюсом (+width), превращаем строку в число 
             offset = 0;
         } else {
-            offset += +width.slice(0, width.length - 2);     // к видимому слайду добаили ширину нового слайда, тем самым вытеснив видимый влево
+            offset += removeNotNumber(width);     // к видимому слайду добаили ширину нового слайда, тем самым вытеснив видимый влево
         }
 
         shiftSlidesToLeft ();
@@ -486,9 +490,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
     prev.addEventListener('click', () => {
         if (offset == 0) { 
-            offset = +width.slice(0, width.length - 2) * (slides.length -1);
+            offset = removeNotNumber(width) * (slides.length -1);
         } else {
-            offset -= +width.slice(0, width.length - 2);   
+            offset -= removeNotNumber(width);   
         }
 
         shiftSlidesToLeft ();
@@ -508,7 +512,7 @@ window.addEventListener('DOMContentLoaded', () => {
             const slideTo = e.target.getAttribute('data-slide-to');
 
             slideIndex = slideTo;       // кликнули на 3ю точку, открылся 3й слайд
-            offset = +width.slice(0, width.length - 2) * (slideTo -1);
+            offset = removeNotNumber(width) * (slideTo -1);
 
             shiftSlidesToLeft ();
             addZeroToNumber ();
