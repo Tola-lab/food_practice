@@ -1,13 +1,13 @@
-function slider() {
-    const slides = document.querySelectorAll('.offer__slide'),
-    slider = document.querySelector('.offer__slider'),
-    prev = document.querySelector('.offer__slider-prev'),
-    next = document.querySelector('.offer__slider-next'), 
-    current = document.querySelector('#current'),
-    total = document.querySelector('#total'), 
-    slidesWrapper = document.querySelector('.offer__slider-wrapper'), 
-    slidesField = document.querySelector('.offer__slider-inner'), 
-    width = window.getComputedStyle(slidesWrapper).width;   // ширина окна слайда 
+function slider({container, slide, nextArrow, prevArrow, totalCounter, currentCounter, wrapper, field}) {
+    const slides = document.querySelectorAll(slide), 
+          slider = document.querySelector(container),  
+          prev = document.querySelector(prevArrow),
+          next = document.querySelector(nextArrow), 
+          current = document.querySelector(currentCounter),
+          total = document.querySelector(totalCounter), 
+          slidesWrapper = document.querySelector(wrapper), 
+          slidesField = document.querySelector(field), 
+          width = window.getComputedStyle(slidesWrapper).width;   // ширина окна слайда 
 
 let slideIndex = 1;     // индекс (номер) слайда
 let offset = 0;         // сколько нужно отступить при смещении слайда
@@ -32,7 +32,7 @@ slides.forEach(slide => {       // ширина всех слайдов в ли�
 
 slider.style.position = 'relative';     // для того, чтобы все элементы, которые будут абсолютно спозиционированны внутри слайдера, нормально отображались
 
-const indicators = document.createElement('ol');      // обертка для точек для слайдера
+const indicators = document.createElement('ol'),      // обертка для точек для слайдера
     dots = [];
 
 indicators.style.cssText = `
@@ -201,4 +201,4 @@ dots.forEach(item => {              // кликаем на любую точку
     // });
 }
 
-module.exports = slider;
+export default slider;

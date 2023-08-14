@@ -1,41 +1,44 @@
-function modal() {
-    const modalTrigger = document.querySelectorAll('[data-modal]'),
-    modal = document.querySelector('.modal');
+function openModal (modalSelector, modalTimerId) {
+    const modal = document.querySelector(modalSelector);
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden'; // чтобы не было прокрутки у модального окна.
+
+    if (modalTimerId) {
+        clearInterval(modalTimerId);
+    }
+};
+
+function closeModal(modalSelector) {
+    const modal = document.querySelector(modalSelector);
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+};
+
+function modal(triggerSelector, modalSelector, modalTimerId) {
+    const modalTrigger = document.querySelectorAll(triggerSelector),
+          modal = document.querySelector(modalSelector);
 
     modalTrigger.forEach(item => {
-        item.addEventListener('click', openModal);
+        item.addEventListener('click', () => openModal(modalSelector, modalTimerId));     
     });
 
-    function openModal () {
-        modal.style.display = 'block';
-        document.body.style.overflow = 'hidden'; // чтобы не было прокрутки у модального окна.
-        clearInterval(modalTimerId);
-    };
-
-    function closeModal() {
-        modal.style.display = 'none';
-        document.body.style.overflow = '';
-    };
-
-
+    
     modal.addEventListener('click', (e) => {     // закрываем модальное окно
         if(e.target === modal || e.target.getAttribute('data-close') == '') {
-            closeModal()
+            closeModal(modalSelector)
         }
     });
 
     document.addEventListener('keydown', (e) => {     // закрываем модальное окно нажатием на кнопку клавиатуры
         if (e.code === 'Escape') {
-            closeModal()
+            closeModal(modalSelector)
         }
     });
 
 
-    const modalTimerId = setTimeout(openModal, 50000);  // вызываем модальное окно через какое-то время
-
     function showModalByScroll () {  // вызываем модальное окно, когда доскроллили в самый низ
         if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
-            openModal();
+            openModal(modalSelector, modalTimerId);
             window.removeEventListener('scroll', showModalByScroll); // удали эту функцию, когда показал один раз
         } 
     };
@@ -43,4 +46,6 @@ function modal() {
     window.addEventListener('scroll', showModalByScroll);
 }
 
-module.exports = modal;
+export default modal;
+export {openModal};
+export {closeModal};

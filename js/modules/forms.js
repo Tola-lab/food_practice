@@ -1,26 +1,18 @@
-function forms(){
-    const forms = document.querySelectorAll('form');
+import { openModal, closeModal } from "./modal";
+import { postData } from "../services/services";
+
+function forms(formSelector, modalTimerId){
+    const forms = document.querySelectorAll(formSelector);
 
     const message = {
-        loading: 'img/form/spinner.svg', 
-        success: 'Спасибо! Скоро мы с вами свяжемся!', 
-        failure: 'Что-то пошло не так...'
+          loading: 'img/form/spinner.svg', 
+          success: 'Спасибо! Скоро мы с вами свяжемся!', 
+          failure: 'Что-то пошло не так...'
     };
 
     forms.forEach(item => {
         bindPostData(item);
     });
-
-    const postData = async (url, data) => {    // настраивает запрос на отпрвку данных на сервер. async - предупреждение, что дальше будет асинхронный код
-        const res = await fetch(url, {          // await – позволяет подождать, пока выполнится код и только после пойдёт дальше
-            method: "POST", 
-            headers: {
-                'Content-type': 'application/json; charset=utf-8'
-            },
-            body: data
-        });
-        return await res.json();      // возвращаем промис
-    };
 
     function bindPostData(form) {       // функция по отправке формы
         form.addEventListener('submit', (e) => {     // событие по отправке формы в обычном формате
@@ -57,7 +49,7 @@ function forms(){
         const prevModalDialog = document.querySelector('.modal__dialog');
 
         prevModalDialog.style.display = 'none';
-        openModal();
+        openModal('.modal', modalTimerId);
 
         const thanksModal = document.createElement('div');
         thanksModal.classList.add('modal__dialog');
@@ -72,7 +64,7 @@ function forms(){
         setTimeout (() => {
             thanksModal.remove();
             prevModalDialog.style.display = 'block';
-            closeModal();
+            closeModal('.modal');
         }, 4000);
     }
 
@@ -81,4 +73,4 @@ function forms(){
     .then(res => console.log(res));
 }
 
-module.exports = forms;
+export default forms;

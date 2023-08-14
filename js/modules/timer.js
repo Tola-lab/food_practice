@@ -1,5 +1,4 @@
-function timer(){
-    const deadline = '2023-06-30';  // дата дедлайна
+function timer(id, deadline){
 
     function getTimeRemaning(endtime) { // получаем разницу между датами: дедлйан и сегодняшний день
         const t = Date.parse(endtime) - Date.parse(new Date()); // в переменную t получаем разницу между дедлайном и сегодняшней датой
@@ -62,7 +61,7 @@ function timer(){
         }
     }
 
-    setClock('.timer', deadline);
+    setClock(id, deadline);
 }
 
-module.exports = timer;
+export default timer;
